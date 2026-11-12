@@ -1,0 +1,131 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity SystemAlfa is
+    port (
+        Clock         : in std_logic; -- Reloj maestro de la tarjeta (50 MHz)
+        Reset         : in std_logic; -- Botón de reset global
+        
+        -- Entradas físicas de los botones
+        BTN_Rojo      : in std_logic;
+        BTN_Verde     : in std_logic;
+        BTN_Azul      : in std_logic;
+        
+        -- Salidas hacia los decodificadores/displays de 7 segmentos
+        Display_Rojo  : out std_logic_vector(3 downto 0);
+        Display_Verde : out std_logic_vector(3 downto 0);
+        Display_Azul  : out std_logic_vector(3 downto 0);
+        Display_Frec  : out std_logic_vector(3 downto 0)
+    );
+end entity;
+
+architecture Estructural of SystemAlfa is
+
+    -- 1. DECLARACIÓN DE COMPONENTES (Los "planos" de los módulos que ya hicimos)
+    
+    component Dflipflop is
+        port (
+            Clock : in std_logic;
+            Reset : in std_logic;
+            D     : in std_logic;
+            Q, Qn : out std_logic
+        );
+    end component;
+
+    component Contador4bits is
+        port (
+            Clock : in std_logic;
+            Reset : in std_logic;
+            EN    : in std_logic;
+            CNT   : out std_logic_vector(3 downto 0)
+        );
+    end component;
+
+    component Registro4bits is
+        port (
+            Clock   : in std_logic;
+            Reset   : in std_logic;
+            EN      : in std_logic;
+            Reg_In  : in std_logic_vector(3 downto 0);
+            Reg_Out : out std_logic_vector(3 downto 0)
+        );
+    end component;
+
+    component DivisorFrecuencia is
+        generic ( MAX_COUNT : integer := 25000000 );
+        port (
+            Clock   : in std_logic;
+            Reset   : in std_logic;
+            Clk_Out : out std_logic
+        );
+    end component;
+
+    -- 2. DECLARACIÓN DE SEÑALES INTERNAS (Los "cables" que unen los bloques)
+    signal frec_int : std_logic;
+    
+    -- Cables para las salidas de los Flip-Flops
+    signal q_rojo, q_verde, q_azul : std_logic;
+    signal qn_nc1, qn_nc2, qn_nc3  : std_logic; -- NC = No Conectado (para el pin Qn)
+    
+    -- Cables para llevar la cuenta de los contadores a los registros
+    signal cnt_rojo, cnt_verde, cnt_azul, cnt_frec : std_logic_vector(3 downto 0);
+
+begin
+
+    -- 3. INSTANCIACIÓN Y CONEXIÓN (El ensamblaje del sistema)
+
+    -- Generador de la señal Frec_int
+    DIV_FREC: DivisorFrecuencia
+        port map (
+            Clock   => Clock,
+            Reset   => Reset,
+            Clk_Out => frec_int
+        );
+
+    -- ==========================================
+    -- CANAL ROJO
+    -- ==========================================
+    FF_ROJO: Dflipflop
+        port map (Clock => Clock, Reset => Reset, D => BTN_Rojo, Q => q_rojo, Qn => qn_nc1);
+        
+    CONT_ROJO: Contador4bits
+        port map (Clock => Clock, Reset => Reset, EN => q_rojo, CNT => cnt_rojo);
+        
+    REG_ROJO: Registro4bits
+        port map (Clock => Clock, Reset => Reset, EN => frec_int, Reg_In => cnt_rojo, Reg_Out => Display_Rojo);
+
+    -- ==========================================
+    -- CANAL VERDE
+    -- ==========================================
+    FF_VERDE: Dflipflop
+        port map (Clock => Clock, Reset => Reset, D => BTN_Verde, Q => q_verde, Qn => qn_nc2);
+        
+    CONT_VERDE: Contador4bits
+        port map (Clock => Clock, Reset => Reset, EN => q_verde, CNT => cnt_verde);
+        
+    REG_VERDE: Registro4bits
+        port map (Clock => Clock, Reset => Reset, EN => frec_int, Reg_In => cnt_verde, Reg_Out => Display_Verde);
+
+    -- ==========================================
+    -- CANAL AZUL
+    -- ==========================================
+    FF_AZUL: Dflipflop
+        port map (Clock => Clock, Reset => Reset, D => BTN_Azul, Q => q_azul, Qn => qn_nc3);
+        
+    CONT_AZUL: Contador4bits
+        port map (Clock => Clock, Reset => Reset, EN => q_azul, CNT => cnt_azul);
+        
+    REG_AZUL: Registro4bits
+        port map (Clock => Clock, Reset => Reset, EN => frec_int, Reg_In => cnt_azul, Reg_Out => Display_Azul);
+
+    -- ==========================================
+    -- CANAL FRECUENCIA (Frec int)
+    -- ==========================================
+    -- Según el diagrama, este canal monitorea la señal Frec_int
+    CONT_FREC: Contador4bits
+        port map (Clock => Clock, Reset => Reset, EN => frec_int, CNT => cnt_frec);
+        
+    REG_FREC: Registro4bits
+        port map (Clock => Clock, Reset => Reset, EN => frec_int, Reg_In => cnt_frec, Reg_Out => Display_Frec);
+
+end architecture;

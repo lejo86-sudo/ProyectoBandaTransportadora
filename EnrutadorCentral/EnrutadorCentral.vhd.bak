@@ -1,0 +1,48 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity EnrutadorCentral is
+    port (
+        Clock          : in std_logic;
+        Reset          : in std_logic;
+        pulse_btn      : in std_logic;
+        SW_Color       : in std_logic_vector(1 downto 0);
+        SW_Tamano      : in std_logic;
+        cnt_tot_u      : in std_logic_vector(3 downto 0);
+        
+        pulse_r        : out std_logic;
+        pulse_v        : out std_logic;
+        pulse_a        : out std_logic;
+        pulse_tot      : out std_logic;
+        pulse_tot_d    : out std_logic;
+        last_color_reg : out std_logic_vector(1 downto 0);
+        last_size_reg  : out std_logic
+    );
+end entity;
+
+architecture rtl of EnrutadorCentral is
+    signal p_tot : std_logic;
+begin
+    pulse_r <= pulse_btn when SW_Color = "01" else '0';
+    pulse_v <= pulse_btn when SW_Color = "10" else '0';
+    pulse_a <= pulse_btn when SW_Color = "11" else '0';
+    
+    p_tot <= (pulse_btn when SW_Color = "01" else '0') or 
+             (pulse_btn when SW_Color = "10" else '0') or 
+             (pulse_btn when SW_Color = "11" else '0');
+             
+    pulse_tot <= p_tot;
+    pulse_tot_d <= '1' when (p_tot = '1' and cnt_tot_u = "1001") else '0';
+
+    process(Clock, Reset) begin
+        if Reset = '0' then 
+            last_color_reg <= "00"; 
+            last_size_reg <= '0';
+        elsif rising_edge(Clock) then
+            if p_tot = '1' then 
+                last_color_reg <= SW_Color; 
+                last_size_reg <= SW_Tamano; 
+            end if;
+        end if;
+    end process;
+end architecture;

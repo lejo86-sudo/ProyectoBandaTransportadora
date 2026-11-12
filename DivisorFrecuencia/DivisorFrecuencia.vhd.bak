@@ -1,0 +1,36 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity DivisorFrecuencia is
+    generic (
+        
+        MAX_COUNT : integer := 25000000 
+    );
+    port (
+        Clock   : in std_logic;
+        Reset   : in std_logic;
+        Clk_Out : out std_logic
+    );
+end entity;
+
+architecture rtl of DivisorFrecuencia is
+    signal contador : integer range 0 to MAX_COUNT;
+    signal estado   : std_logic := '0';
+begin
+    process(Clock, Reset)
+    begin
+        if Reset = '0' then
+            contador <= 0;
+            estado   <= '0';
+        elsif rising_edge(Clock) then
+            if contador = MAX_COUNT - 1 then
+                estado   <= not estado; 
+                contador <= 0;          
+            else
+                contador <= contador + 1; 
+            end if;
+        end if;
+    end process;
+
+    Clk_Out <= estado;
+end architecture;

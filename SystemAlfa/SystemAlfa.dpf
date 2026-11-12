@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<pin_planner>
+	<pin_info>
+		<pin name="LED_Frec" source="Pin Planner" >
+		</pin>
+		<pin name="SW_RegVista[1]" source="Pin Planner" >
+		</pin>
+		<pin name="SW_RegVista[0]" source="Pin Planner" >
+		</pin>
+		<pin name="SW_Pausa" source="Pin Planner" >
+		</pin>
+		<pin name="SW_RegAzul" source="Pin Planner" >
+		</pin>
+		<pin name="SW_RegRojo" source="Pin Planner" >
+		</pin>
+		<pin name="SW_RegVerde" source="Pin Planner" >
+		</pin>
+		<pin name="BTN_Azul" source="Pin Planner" >
+		</pin>
+		<pin name="BTN_Rojo" source="Pin Planner" >
+		</pin>
+		<pin name="BTN_Verde" source="Pin Planner" >
+		</pin>
+		<pin name="Switch_Marcha" source="Pin Planner" >
+		</pin>
+		<pin name="Switch_Vel[1]" source="Pin Planner" >
+		</pin>
+		<pin name="Switch_Vel[0]" source="Pin Planner" >
+		</pin>
+		<pin name="LED_Media" source="Pin Planner" >
+		</pin>
+		<pin name="LED_Baja" source="Pin Planner" >
+		</pin>
+		<pin name="LED_Alta" source="Pin Planner" >
+		</pin>
+		<pin name="Switch_Vel[2]" source="Pin Planner" >
+		</pin>
+		<pin name="LED_Motor" source="Pin Planner" >
+		</pin>
+	</pin_info>
+	<buses>
+	</buses>
+	<group_file_association>
+	</group_file_association>
+	<pin_planner_file_specifies>
+	</pin_planner_file_specifies>
+</pin_planner>
